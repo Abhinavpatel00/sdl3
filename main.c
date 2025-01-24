@@ -1,28 +1,56 @@
-#include <stdio.h>
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_cpuinfo.h>
+#include <stdio.h>
 
-int main(int argc, char *argv[]) {
+// Main entry point
+int main(int argc, char *argv[])
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
+        printf("Failed to initialize SDL: %s\n", SDL_GetError());
+        return 1;
+    }
 
-   printf("Number of logical CPU cores: %d\n", SDL_GetNumLogicalCPUCores());
-   printf("L1 cache line size: %d bytes\n", SDL_GetCPUCacheLineSize());
-   printf("Has AltiVec: %s\n", SDL_HasAltiVec() ? "true" : "false");
-   printf("Has MMX: %s\n", SDL_HasMMX() ? "true" : "false");
-   printf("Has SSE: %s\n", SDL_HasSSE() ? "true" : "false");
-   printf("Has SSE2: %s\n", SDL_HasSSE2() ? "true" : "false");
-   printf("Has SSE3: %s\n", SDL_HasSSE3() ? "true" : "false");
-   printf("Has SSE4.1: %s\n", SDL_HasSSE41() ? "true" : "false");
-   printf("Has SSE4.2: %s\n", SDL_HasSSE42() ? "true" : "false");
-   printf("Has AVX: %s\n", SDL_HasAVX() ? "true" : "false");
-   printf("Has AVX2: %s\n", SDL_HasAVX2() ? "true" : "false");
-   printf("Has AVX-512F: %s\n", SDL_HasAVX512F() ? "true" : "false");
-   printf("Has ARM SIMD: %s\n", SDL_HasARMSIMD() ? "true" : "false");
-   printf("Has NEON: %s\n", SDL_HasNEON() ? "true" : "false");
-   printf("Has LSX: %s\n", SDL_HasLSX() ? "true" : "false");
-   printf("Has LASX: %s\n", SDL_HasLASX() ? "true" : "false");
-   printf("System RAM: %d MiB\n", SDL_GetSystemRAM());
-   printf("SIMD alignment: %zu bytes\n", SDL_GetSIMDAlignment());
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+    SDL_CreateWindowAndRenderer("My SDL Window", 800, 600, SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS, &window, &renderer);
 
-   SDL_Quit();
-   return 0;
+    if (!window || !renderer)
+    {
+        printf("Failed to create window or renderer: %s\n", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    int running = 1;
+    while (running)
+    {
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_EVENT_QUIT)
+            {
+                running = 0;
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+        SDL_RenderClear(renderer);
+
+        // Set color to red
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red color
+
+        float x = 100, y = 100, width = 200, height = 150;
+
+        SDL_RenderLine(renderer, x, y, x + width, y);                   // Top line
+        SDL_RenderLine(renderer, x + width, y, x + width, y + height);  // Right line
+        SDL_RenderLine(renderer, x + width, y + height, x, y + height); // Bottom line
+        SDL_RenderLine(renderer, x, y + height, x, y);                  // Left line
+        SDL_RenderPresent(renderer);
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
 }
